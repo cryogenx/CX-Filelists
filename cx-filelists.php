@@ -3,7 +3,7 @@
 Plugin Name: CX-Filelists
 Plugin URI: http://gwelsted.com
 Description: This plugin displays a listing of files from a supplied directory.
-Version: 0.1
+Version: 0.5
 Author: George Welsted
 Author URI: http://gwelsted.com
 License: GPL2
@@ -33,75 +33,46 @@ require(CXFL_PATH . 'plugin_options.php');
 $options = get_option('cxfl_plugin_options');
 
 function cxFilelist($atts) {
+	$options = get_option('cxfl_plugin_options');
 	define( 'CXFL_PATH', plugin_dir_path(__FILE__) );
 	$path = $atts['path'];
 	
-	echo '<ul class="pde">';
-		getDirectory($path);
-	echo '</ul>';
-
+	$default_exclude = array('cgi-bin', '.', '..');
+	
+	if (isset($options['exclude_list'])){
+		$custom_exclude = $options['exclude_list'];				
+		$custom_exclude = explode(",", $custom_exclude);
+		$exclude = array_merge($default_exclude, $custom_exclude);
+	} else {
+		$exclude = $default_exclude;
+	}
+	
+	
+	dir_tree($path, $exclude, 'pde');
 }
 
 add_shortcode('cxfilelist','cxFilelist');
 
 
-function getDirectory($path = '.' , $level = 0){
-	define( 'CXFL_PATH', plugin_dir_path(__FILE__) );
-	$options = get_option('cxfl_plugin_options');
+function dir_tree($dir, $exclude, $class = null){ 
 	
-	$default_ignore = array('cgi-bin', '.', '..');
-	
-	if (isset($options['exclude_list'])){
-		$custom_ign = $options['exclude_list'];
+    $ffs = scandir($dir); 
+	echo '<ul class="'.$class.'">'; 
+    foreach($ffs as $ff){ 
+        if(is_array($exclude) and !in_array($ff,$exclude)){ 
+            if($ff != '.' && $ff != '..'){ 
+            if(!is_dir($dir.'/'.$ff)){ 
+            echo '<li><a href="#">'.$ff.'</a>'; 
+            } else { 
+				echo '<li><a href="#">'.$ff.'</a>';				 
+            } 
 				
-		$custom_ignore = explode(",", $custom_ign);
-		$ignore = array_merge($default_ignore, $custom_ignore);
-	} else {
-		$ignore = $default_ignore;
-	}
-
-$replace = array("[A]");
-    // Directories to ignore when listing output. Many hosts
-    // will deny PHP access to the cgi-bin.
-
-    $dh = @opendir( $path );
-    // Open the directory to the handle $dh
-    
-    while( false !== ( $file = readdir( $dh ) ) ){
-    // Loop through the directory
-    
-        if( !in_array( $file, $ignore ) ){
-        // Check that this file is not to be ignored
-            
-            $spaces = str_repeat( '&nbsp;', ( $level * 4 ) );
-            // Just to add spacing to the list, to better
-            // show the directory tree.
-            
-            if( is_dir( "$path/$file" ) ){
-            // Its a directory, so we need to keep reading down...
-				$file2 = str_replace($replace,"",$file);
-                echo "<li><a href='#'><b>$spaces $file2</b></a>";
-                echo "<ul>";
-				getDirectory( "$path/$file", ($level+1) );
-				echo "</ul>";
-                // Re-call this same function but on a new directory.
-                // this is what makes function recursive.
-           
-            } else {
-            	$file3 = str_replace("!","",$file);
-                echo "<li><a href='$path/$file' target='blank'>$spaces $file3</a></li>";
-			
-                // Just print out the filename
-            
-            }
-        	
-        }
-    
-    }
-    
-    closedir( $dh );
-    // Close the directory handle
-	
+            if(is_dir($dir.'/'.$ff)) dir_tree($dir.'/'.$ff, $exclude); 
+			echo '</li>';
+            } 
+        } 
+    } 
+	echo '</ul>'; 
 } 
 
 function cxfl_present_css_files() {
