@@ -62,9 +62,9 @@ function dir_tree($dir, $exclude, $class = null){
         if(is_array($exclude) and !in_array($ff,$exclude)){ 
             if($ff != '.' && $ff != '..'){ 
             if(!is_dir($dir.'/'.$ff)){ 
-            echo '<li><a href="#">'.$ff.'</a>'; 
+				echo '<li><a href="/'.$dir.'/'.$ff.'">'.$ff.'</a>'; 
             } else { 
-				echo '<li><a href="#">'.$ff.'</a>';				 
+				echo '<li><a href="">'.$ff.'</a>';				 
             } 
 				
             if(is_dir($dir.'/'.$ff)) dir_tree($dir.'/'.$ff, $exclude); 
