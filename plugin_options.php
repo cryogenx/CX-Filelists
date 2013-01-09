@@ -25,6 +25,17 @@ function cxfl_build_options_page() {  ?>
 			  <input name="Submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" />      
 		  </p>    
 		</form>  
+		
+<?php
+									//code to show changelog on the options page
+									define( 'CXFL_PATH', plugin_dir_path(__FILE__) );	
+									define( 'CXFL_URL', plugin_dir_url(__FILE__) );
+
+									$MAXITEMS = "30";
+
+									include("rss-gen/rss2html.php");
+?>
+		
 	</div>
 <?php }
 
