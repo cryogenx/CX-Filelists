@@ -47,8 +47,12 @@ function cxFilelist($atts) {
 		$exclude = $default_exclude;
 	}
 	
-	
+	ob_start();
 	dir_tree($path, $exclude, 'pde');
+	$cxfl_output=ob_get_contents();
+	ob_end_clean();
+	
+	return $cxfl_output;
 }
 
 add_shortcode('cxfilelist','cxFilelist');
